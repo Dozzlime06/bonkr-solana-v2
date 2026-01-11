@@ -1,0 +1,52 @@
+name: Build and Deploy Bonkr
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: metaDAOproject/setup-anchor@v3
+        with:
+          anchor-version: '0.31.1'
+          solana-version: '2.1.21'
+          node-version: '20'
+
+      - name: Check versions
+        run: |
+          rustc --version
+          solana --version
+          anchor --version
+
+      - name: Setup wallet
+        env:
+          WALLET_KEY: ${{ secrets.WALLET_KEYPAIR }}
+          RPC: ${{ secrets.RPC_URL }}
+        run: |
+          mkdir -p ~/.config/solana
+          echo "$WALLET_KEY" | base64 -d > ~/.config/solana/id.json
+          chmod 600 ~/.config/solana/id.json
+          solana config set --url "$RPC"
+          solana config set --keypair ~/.config/solana/id.json
+          solana balance
+
+      - name: Build
+        run: anchor build
+
+      - name: Deploy
+        if: github.event_name == 'workflow_dispatch'
+        run: anchor deploy --provider.cluster mainnet
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: program-artifacts
+          path: |
+            target/deploy/*.so
+            target/idl/*.json
