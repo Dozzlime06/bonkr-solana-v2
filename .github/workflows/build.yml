@@ -11,15 +11,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Rust
+      - name: Setup Rust 1.85
         run: |
-          rustup toolchain install 1.79.0 --profile minimal
-          rustup default 1.79.0
+          rustup toolchain install 1.85.0 --profile minimal
+          rustup default 1.85.0
           rustc --version
 
       - name: Install Solana CLI
         run: |
-          sh -c "$(curl -sSfL https://release.anza.xyz/v1.18.26/install)"
+          sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.21/install)"
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
 
       - name: Install Anchor CLI
