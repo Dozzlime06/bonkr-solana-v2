@@ -13,8 +13,8 @@ jobs:
 
       - name: Setup Rust
         run: |
-          rustup toolchain install 1.82.0 --profile minimal
-          rustup default 1.82.0
+          rustup toolchain install 1.79.0 --profile minimal
+          rustup default 1.79.0
           rustc --version
 
       - name: Install Solana CLI
@@ -24,7 +24,9 @@ jobs:
 
       - name: Install Anchor CLI
         run: |
-          cargo install --git https://github.com/coral-xyz/anchor --tag v0.30.1 anchor-cli --locked
+          curl -sSfL https://github.com/coral-xyz/anchor/releases/download/v0.30.1/anchor-x86_64-unknown-linux-gnu -o anchor
+          chmod +x anchor
+          sudo mv anchor /usr/local/bin/
           anchor --version
 
       - name: Check versions
