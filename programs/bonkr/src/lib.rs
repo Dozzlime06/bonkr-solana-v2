@@ -769,52 +769,48 @@ pub struct TokenGraduated {
     pub mint: Pubkey,
     pub market_cap_usd: u64,
 }
-
 #[event]
 pub struct CreatorFeesClaimed {
-    pub creator: Pubkey,
-    pub amount: u64,
+pub creator: Pubkey,
+pub amount: u64,
 }
-
 #[event]
 pub struct LPWithdrawn {
-    pub mint: Pubkey,
-    pub sol_amount: u64,
-    pub token_amount: u64,
-    pub recipient: Pubkey,
+pub mint: Pubkey,
+pub sol_amount: u64,
+pub token_amount: u64,
+pub recipient: Pubkey,
 }
-
 #[event]
 pub struct EmergencyWithdrawEvent {
-    pub amount: u64,
+pub amount: u64,
 }
-
 #[error_code]
 pub enum BonkrError {
-    #[msg("Factory is paused")]
-    FactoryPaused,
-    #[msg("Token is paused")]
-    TokenPaused,
-    #[msg("Token has graduated")]
-    TokenGraduated,
-    #[msg("Already graduated")]
-    AlreadyGraduated,
-    #[msg("Invalid amount")]
-    InvalidAmount,
-    #[msg("Slippage exceeded")]
-    SlippageExceeded,
-    #[msg("Insufficient tokens in reserve")]
-    InsufficientTokens,
-    #[msg("Insufficient liquidity")]
-    InsufficientLiquidity,
-    #[msg("No fees to claim")]
-    NoFeesToClaim,
-    #[msg("No funds to withdraw")]
-    NoFundsToWithdraw,
-    #[msg("Name too long (max 32 chars)")]
-    NameTooLong,
-    #[msg("Symbol too long (max 10 chars)")]
-    SymbolTooLong,
-    #[msg("Not the token creator")]
-    NotCreator,
+#[msg("Factory is paused")]
+FactoryPaused,
+#[msg("Token is paused")]
+TokenPaused,
+#[msg("Token has graduated")]
+TokenGraduated,
+#[msg("Already graduated")]
+AlreadyGraduated,
+#[msg("Invalid amount")]
+InvalidAmount,
+#[msg("Slippage exceeded")]
+SlippageExceeded,
+#[msg("Insufficient tokens in reserve")]
+InsufficientTokens,
+#[msg("Insufficient liquidity")]
+InsufficientLiquidity,
+#[msg("No fees to claim")]
+NoFeesToClaim,
+#[msg("No funds to withdraw")]
+NoFundsToWithdraw,
+#[msg("Name too long (max 32 chars)")]
+NameTooLong,
+#[msg("Symbol too long (max 10 chars)")]
+SymbolTooLong,
+#[msg("Not the token creator")]
+NotCreator,
 }
