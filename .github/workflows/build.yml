@@ -5,34 +5,48 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+  SOLANA_VERSION: '2.1.21'
+  ANCHOR_VERSION: '0.31.1'
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Solana CLI
+      - name: Install Rust Nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          profile: minimal
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install Solana
         run: |
-          sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.21/install)"
+          sh -c "$(curl -sSfL https://release.anza.xyz/v${{ env.SOLANA_VERSION }}/install)"
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
-
-      - name: Setup Rust Nightly (after Solana)
-        run: |
-          rustup toolchain install nightly
-          rustup default nightly
-          rustup override set nightly
-          rustc --version
-          cargo --version
-
-      - name: Install Anchor CLI
-        run: |
-          cargo install --git https://github.com/coral-xyz/anchor --tag v0.31.1 anchor-cli --locked --force
-
-      - name: Check versions
-        run: |
-          rustc --version
-          cargo --version
+          export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
           solana --version
+
+      - name: Install Anchor
+        run: |
+          cargo +nightly install --git https://github.com/coral-xyz/anchor avm --locked --force
+          avm install ${{ env.ANCHOR_VERSION }}
+          avm use ${{ env.ANCHOR_VERSION }}
+          export PATH="$HOME/.avm/bin:$PATH"
           anchor --version
 
       - name: Setup wallet
@@ -47,12 +61,16 @@ jobs:
           solana config set --keypair ~/.config/solana/id.json
           solana balance
 
-      - name: Build
-        run: anchor build
-
+      - name: Build with explicit nightly
+        run: |
+          export PATH="$HOME/.avm/bin:$PATH"
+          cargo +nightly build-sbf
+          
       - name: Deploy
         if: github.event_name == 'workflow_dispatch'
-        run: anchor deploy --provider.cluster mainnet
+        run: |
+          export PATH="$HOME/.avm/bin:$PATH"
+          anchor deploy --provider.cluster mainnet
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
