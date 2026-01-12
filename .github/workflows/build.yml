@@ -13,9 +13,11 @@ jobs:
 
       - name: Setup Rust 1.85
         run: |
-          rustup toolchain install 1.85.0 --profile minimal
-          rustup default 1.85.0
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.85.0
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          source $HOME/.cargo/env
           rustc --version
+          cargo --version
 
       - name: Install Solana CLI
         run: |
@@ -32,6 +34,7 @@ jobs:
       - name: Check versions
         run: |
           rustc --version
+          cargo --version
           solana --version
           anchor --version
 
