@@ -61,6 +61,10 @@ jobs:
           solana config set --keypair ~/.config/solana/id.json
           solana balance
 
+      - name: Force blake3 downgrade
+        run: |
+          cargo +nightly-2025-01-10 update -p blake3 --precise 1.5.4
+
       - name: Build with explicit nightly
         run: |
           export PATH="$HOME/.avm/bin:$PATH"
