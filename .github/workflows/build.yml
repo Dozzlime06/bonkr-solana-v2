@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust Nightly
+      - name: Install Latest Rust Nightly
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: nightly-2025-01-10
           override: true
           profile: minimal
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: Install Anchor
         run: |
-          cargo +nightly install --git https://github.com/coral-xyz/anchor avm --locked --force
+          cargo +nightly-2025-01-10 install --git https://github.com/coral-xyz/anchor avm --locked --force
           avm install ${{ env.ANCHOR_VERSION }}
           avm use ${{ env.ANCHOR_VERSION }}
           export PATH="$HOME/.avm/bin:$PATH"
@@ -64,7 +64,7 @@ jobs:
       - name: Build with explicit nightly
         run: |
           export PATH="$HOME/.avm/bin:$PATH"
-          cargo +nightly build-sbf
+          cargo +nightly-2025-01-10 build-sbf
           
       - name: Deploy
         if: github.event_name == 'workflow_dispatch'
