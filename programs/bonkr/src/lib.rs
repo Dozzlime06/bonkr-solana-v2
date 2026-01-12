@@ -437,7 +437,15 @@ fn check_graduation(token_state: &mut Account<TokenState>, sol_price_usd: u64) -
     if market_cap_usd >= GRADUATION_USD as u128 {
         token_state.is_graduated = true;
         emit!(TokenGraduated {
-            #[derive(Accounts)]
+            mint: token_state.mint,
+            market_cap_usd: market_cap_usd as u64,
+        });
+    }
+
+    Ok(())
+}
+
+#[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(
         init,
