@@ -13,9 +13,8 @@ jobs:
 
       - name: Setup Rust Nightly
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          source $HOME/.cargo/env
+          rustup toolchain install nightly
+          rustup default nightly
           rustc --version
           cargo --version
 
@@ -26,10 +25,7 @@ jobs:
 
       - name: Install Anchor CLI
         run: |
-          curl -sSfL https://github.com/solana-foundation/anchor/releases/download/v0.31.1/anchor-0.31.1-x86_64-unknown-linux-gnu -o anchor
-          chmod +x anchor
-          sudo mv anchor /usr/local/bin/
-          anchor --version
+          cargo install --git https://github.com/coral-xyz/anchor --tag v0.31.1 anchor-cli --locked --force
 
       - name: Check versions
         run: |
