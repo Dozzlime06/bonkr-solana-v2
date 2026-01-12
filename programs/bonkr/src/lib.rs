@@ -445,6 +445,10 @@ fn check_graduation(token_state: &mut Account<TokenState>, sol_price_usd: u64) -
     Ok(())
 }
 
+// ============================================================================
+// CONTEXT STRUCTS - ALL FIXED WITH #[derive(Accounts)]
+// ============================================================================
+
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(
@@ -778,7 +782,7 @@ pub struct CreatorFeesClaimed {
 
 #[event]
 pub struct LPWithdrawn {
-    pub mint:Pubkey,
+pub mint: Pubkey,
 pub sol_amount: u64,
 pub token_amount: u64,
 pub recipient: Pubkey,
