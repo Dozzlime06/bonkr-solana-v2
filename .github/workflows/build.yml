@@ -11,17 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Rust Nightly
-        run: |
-          rustup toolchain install nightly
-          rustup default nightly
-          rustc --version
-          cargo --version
-
       - name: Install Solana CLI
         run: |
           sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.21/install)"
           echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Setup Rust Nightly (after Solana)
+        run: |
+          rustup toolchain install nightly
+          rustup default nightly
+          rustup override set nightly
+          rustc --version
+          cargo --version
 
       - name: Install Anchor CLI
         run: |
