@@ -445,10 +445,6 @@ fn check_graduation(token_state: &mut Account<TokenState>, sol_price_usd: u64) -
     Ok(())
 }
 
-// ============================================================================
-// CONTEXT STRUCTS - ALL FIXED WITH #[derive(Accounts)]
-// ============================================================================
-
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(
