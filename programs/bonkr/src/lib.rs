@@ -237,12 +237,12 @@ pub mod bonkr {
     }
 
     pub fn claim_creator_fees(ctx: Context<ClaimCreatorFees>) -> Result<()> {
-        let token_state = &ctx.accounts.token_state;
+        let token_state = &mut ctx.accounts.token_state;
         let amount = token_state.creator_fees_accrued;
         require!(amount > 0, BonkrError::NoFeesToClaim);
         require!(ctx.accounts.creator.key() == token_state.creator, BonkrError::NotCreator);
 
-        let token_state_mut = &mut ctx.accounts.token_state.clone();
+        token_state.creator_fees_accrued = 0;
         
         **ctx.accounts.sol_vault.to_account_info().try_borrow_mut_lamports()? -= amount;
         **ctx.accounts.creator.to_account_info().try_borrow_mut_lamports()? += amount;
@@ -457,12 +457,12 @@ pub struct Initialize<'info> {
     pub config: Account<'info, GlobalConfig>,
     #[account(mut)]
     pub authority: Signer<'info>,
-    pub platform_fee_recipient: SystemAccount<'info>,
+    /// CHECK: This is the platform fee recipient account
+    pub platform_fee_recipient: AccountInfo<'info>,
     pub system_program: Program<'info, anchor_lang::system_program::System>,
 }
 
 #[derive(Accounts)]
-#[instruction(name: String, symbol: String)]
 pub struct CreateToken<'info> {
     #[account(
         mut,
@@ -501,7 +501,8 @@ pub struct CreateToken<'info> {
         seeds = [b"sol_vault", mint.key().as_ref()],
         bump
     )]
-    pub sol_vault: SystemAccount<'info>,
+    /// CHECK: This is a PDA used as a SOL vault
+    pub sol_vault: AccountInfo<'info>,
     
     #[account(
         init_if_needed,
@@ -514,8 +515,9 @@ pub struct CreateToken<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
     
-    #[account(mut, address = config.platform_fee_recipient)]
-    pub platform_fee_recipient: SystemAccount<'info>,
+    #[account(mut)]
+    /// CHECK: Validated by config.platform_fee_recipient
+    pub platform_fee_recipient: AccountInfo<'info>,
     
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -549,7 +551,8 @@ pub struct Trade<'info> {
         seeds = [b"sol_vault", mint.key().as_ref()],
         bump = token_state.vault_bump
     )]
-    pub sol_vault: SystemAccount<'info>,
+    /// CHECK: This is a PDA used as a SOL vault
+    pub sol_vault: AccountInfo<'info>,
     
     #[account(
         init_if_needed,
@@ -562,8 +565,9 @@ pub struct Trade<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     
-    #[account(mut, address = config.platform_fee_recipient)]
-    pub platform_fee_recipient: SystemAccount<'info>,
+    #[account(mut)]
+    /// CHECK: Validated by config.platform_fee_recipient
+    pub platform_fee_recipient: AccountInfo<'info>,
     
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -584,7 +588,8 @@ pub struct ClaimCreatorFees<'info> {
         seeds = [b"sol_vault", token_state.mint.as_ref()],
         bump = token_state.vault_bump
     )]
-    pub sol_vault: SystemAccount<'info>,
+    /// CHECK: This is a PDA used as a SOL vault
+    pub sol_vault: AccountInfo<'info>,
     
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -622,7 +627,8 @@ pub struct AdminWithdrawLP<'info> {
         seeds = [b"sol_vault", mint.key().as_ref()],
         bump = token_state.vault_bump
     )]
-    pub sol_vault: SystemAccount<'info>,
+    /// CHECK: This is a PDA used as a SOL vault
+    pub sol_vault: AccountInfo<'info>,
     
     #[account(
         init_if_needed,
@@ -633,7 +639,8 @@ pub struct AdminWithdrawLP<'info> {
     pub recipient_token_account: Account<'info, TokenAccount>,
     
     #[account(mut)]
-    pub recipient: SystemAccount<'info>,
+    /// CHECK: Recipient can be any account
+    pub recipient: AccountInfo<'info>,
     
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -685,7 +692,8 @@ pub struct EmergencyWithdraw<'info> {
     pub config: Account<'info, GlobalConfig>,
     
     #[account(mut)]
-    pub sol_vault: SystemAccount<'info>,
+    /// CHECK: This is a PDA used as a SOL vault
+    pub sol_vault: AccountInfo<'info>,
     
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -770,43 +778,41 @@ pub struct CreatorFeesClaimed {
 
 #[event]
 pub struct LPWithdrawn {
-    pub mint: Pubkey,
-    pub sol_amount: u64,
-    pub token_amount: u64,
-    pub recipient: Pubkey,
+    pub mint:Pubkey,
+pub sol_amount: u64,
+pub token_amount: u64,
+pub recipient: Pubkey,
 }
-
 #[event]
 pub struct EmergencyWithdrawEvent {
-    pub amount: u64,
+pub amount: u64,
 }
-
 #[error_code]
 pub enum BonkrError {
-    #[msg("Factory is paused")]
-    FactoryPaused,
-    #[msg("Token is paused")]
-    TokenPaused,
-    #[msg("Token has graduated")]
-    TokenGraduated,
-    #[msg("Already graduated")]
-    AlreadyGraduated,
-    #[msg("Invalid amount")]
-    InvalidAmount,
-    #[msg("Slippage exceeded")]
-    SlippageExceeded,
-    #[msg("Insufficient tokens in reserve")]
-    InsufficientTokens,
-    #[msg("Insufficient liquidity")]
-    InsufficientLiquidity,
-    #[msg("No fees to claim")]
-    NoFeesToClaim,
-    #[msg("No funds to withdraw")]
-    NoFundsToWithdraw,
-    #[msg("Name too long (max 32 chars)")]
-    NameTooLong,
-    #[msg("Symbol too long (max 10 chars)")]
-    SymbolTooLong,
-    #[msg("Not the token creator")]
-    NotCreator,
+#[msg("Factory is paused")]
+FactoryPaused,
+#[msg("Token is paused")]
+TokenPaused,
+#[msg("Token has graduated")]
+TokenGraduated,
+#[msg("Already graduated")]
+AlreadyGraduated,
+#[msg("Invalid amount")]
+InvalidAmount,
+#[msg("Slippage exceeded")]
+SlippageExceeded,
+#[msg("Insufficient tokens in reserve")]
+InsufficientTokens,
+#[msg("Insufficient liquidity")]
+InsufficientLiquidity,
+#[msg("No fees to claim")]
+NoFeesToClaim,
+#[msg("No funds to withdraw")]
+NoFundsToWithdraw,
+#[msg("Name too long (max 32 chars)")]
+NameTooLong,
+#[msg("Symbol too long (max 10 chars)")]
+SymbolTooLong,
+#[msg("Not the token creator")]
+NotCreator,
 }
