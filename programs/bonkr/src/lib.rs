@@ -100,7 +100,7 @@ let signer_seeds = &[&seeds[..]];
 let cpi_accounts = MintTo {
     mint: ctx.accounts.mint.to_account_info(),
     to: ctx.accounts.token_vault.to_account_info(),
-    authority: ctx.accounts.token_state.to_account_info(),
+    authority: token_state.to_account_info(),
 };
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
