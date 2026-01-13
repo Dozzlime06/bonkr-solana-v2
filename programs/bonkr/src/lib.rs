@@ -87,17 +87,21 @@ pub mod bonkr {
         token_state.bump = ctx.bumps.token_state;
         token_state.vault_bump = ctx.bumps.sol_vault;
 
-        let seeds = &[
-            b"token_state",
-            ctx.accounts.mint.to_account_info().key.as_ref(),
-            &[token_state.bump],
-        ];
-        let signer_seeds = &[&seeds[..]];
+        let bump = token_state.bump;
+let mint_key = ctx.accounts.mint.key();
 
-        let cpi_accounts = MintTo {
-            mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.token_vault.to_account_info(),
-            authority: ctx.accounts.token_state.to_account_info(),
+let seeds = &[
+    b"token_state",
+    mint_key.as_ref(),
+    &[bump],
+];
+let signer_seeds = &[&seeds[..]];
+
+let cpi_accounts = MintTo {
+    mint: ctx.accounts.mint.to_account_info(),
+    to: ctx.accounts.token_vault.to_account_info(),
+    authority: ctx.accounts.token_state.to_account_info(),
+};
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
