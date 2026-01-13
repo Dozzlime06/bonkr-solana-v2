@@ -102,7 +102,6 @@ let cpi_accounts = MintTo {
     to: ctx.accounts.token_vault.to_account_info(),
     authority: ctx.accounts.token_state.to_account_info(),
 };
-        };
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
         token::mint_to(cpi_ctx, TOTAL_SUPPLY)?;
